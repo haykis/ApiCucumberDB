@@ -1,6 +1,6 @@
 package pojo;
 
-public class PojoApi1 {
+public class PojoApiHA {
     private String activity;
     private String type;
     private int participants;

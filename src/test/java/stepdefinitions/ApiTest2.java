@@ -2,7 +2,7 @@ package stepdefinitions;
 
 import io.cucumber.java.en.Given;
 import io.restassured.RestAssured;
-import pojo.PojoApi1;
+import pojo.PojoApiHA;
 
 import java.util.Map;
 
@@ -20,7 +20,7 @@ public class ApiTest2 {
 
         System.out.println("***********");
 
-        PojoApi1 pojoApi1 = RestAssured.get().body().as(PojoApi1.class);
+        PojoApiHA pojoApi1 = RestAssured.get().body().as(PojoApiHA.class);
         System.out.println("pojoApi1.getActivity() = " + pojoApi1.getActivity());
 
     }
