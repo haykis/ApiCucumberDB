@@ -16,7 +16,7 @@
       <console name="Connection" type="STANDARD" schema="school2" session="Main" />
     </connection>
     <connection id="d53ccf5f-ef6f-491a-b04b-4ec73973994f">
-      <console name="Connection 1" type="STANDARD" schema="medunna_db" session="Main"><![CDATA[select id from "public".appointment;]]></console>
+      <console name="Connection 1" type="STANDARD" schema="medunna_db" session="Main"><![CDATA[select ssn from "public".jhi_user;]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">
