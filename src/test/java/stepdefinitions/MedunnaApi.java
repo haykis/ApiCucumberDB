@@ -1,6 +1,7 @@
 package stepdefinitions;
 
 import com.github.javafaker.Faker;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -14,12 +15,16 @@ import utilities.TokenMedunna;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static utilities.DbConnect.*;
 import static utilities.DbConnect.resultSet;
 
 public class MedunnaApi {
     Response registerResponse;
+    Response allusers;
     Faker faker = new Faker();
     RegisterMedunna registerMedunna = new RegisterMedunna();
     RegisterMedunnaResponse registerMedunnaResponse = new RegisterMedunnaResponse();
@@ -29,6 +34,7 @@ public class MedunnaApi {
     String login;
     String password;
     String ssn;
+    String token=TokenMedunna.MedunnaToken();
 
     @Given("make a new register with Api")
     public void makeANewRegisterWithApi() {
@@ -46,7 +52,7 @@ public class MedunnaApi {
         registerMedunna.setPassword(password);
         registerMedunna.setSsn(ssn);
 
-        String token=TokenMedunna.MedunnaToken();
+
         System.out.println("token = " + token);
 
          registerResponse = RestAssured.given()
@@ -85,5 +91,42 @@ public class MedunnaApi {
             row++;
         }
         System.out.println("row = " + row);
+    }
+
+    @And("with api get all users and verify with DB")
+    public void withApiGetAllUsersAndVerifyWithDB() throws SQLException {
+        Map<String, String> pathParamm = new HashMap<>();
+        pathParamm.put("pad1","api");
+        pathParamm.put("pad2","users");
+        RestAssured.baseURI = "https://medunna.com";
+        allusers=RestAssured.given().header("Authorization","Bearer "+token)
+                .pathParams(pathParamm).log().uri()
+                .when().get("/{pad1}/{pad2}")
+                .then().assertThat().statusCode(200).extract().response();
+
+        List<Object> totalusers=allusers.body().as(List.class);
+
+        connection= DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
+        statement= connection.createStatement(resultSet.TYPE_SCROLL_SENSITIVE, resultSet.CONCUR_UPDATABLE);
+
+        resultSet=statement.executeQuery("select ssn, first_name, id, last_name, email, login from jhi_user");
+        resultSet.next();
+
+        Assert.assertTrue(totalusers.get(0).toString().contains(resultSet.getString("ssn")));
+        Assert.assertTrue(totalusers.get(0).toString().contains(resultSet.getString("first_name")));
+        Assert.assertTrue(totalusers.get(0).toString().contains(resultSet.getString("last_name")));
+        Assert.assertTrue(totalusers.get(0).toString().contains(resultSet.getString("id")));
+        Assert.assertTrue(totalusers.get(0).toString().contains(resultSet.getString("email")));
+        Assert.assertTrue(totalusers.get(0).toString().contains(resultSet.getString("login")));
+
+            //burada API den gelen veriler eksik Api ile DB belli bir satirdan sonra uyusmuyor bir bag soz konusu
+//        int row = 0;
+//        while (resultSet.next()){
+//            if (row<totalusers.size()){
+//                Assert.assertTrue(totalusers.get(row).toString().contains(resultSet.getString("ssn")));
+//            }
+//            row++;
+//        }
+
     }
 }

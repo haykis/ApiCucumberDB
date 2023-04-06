@@ -4,3 +4,4 @@ Feature:Validate all data performing database testing
     Given make a new register with Api
     When verify my registration with Api
     Then verify my registration with DB
+    And with api get all users and verify with DB
